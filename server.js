@@ -6,10 +6,12 @@ const  axios  = require("axios")
 require('dotenv').config();
 
 
+
 app.use(express.json())
 app.use(cors())
 
 ///////////////////////// lab 13 ////////////////////////////
+/////////////////////////////////////////////////////////////
 
 function Movies(title , posterpath , overview){
      this.title = title;
@@ -33,7 +35,8 @@ app.get("/favorite", (req,res) =>{
 
 
 
-////////////////////////// lab 14 /////////////////////////////
+////////////////////////// lab 14 ////////////////////////////
+/////////////////////////////////////////////////////////////
 
 function Movies2 (title , posterpath , overview , id , release_date){
      this.title = title;
@@ -117,13 +120,55 @@ function handelTop (req , res){
 }
 
 
+
+////////////////////////// lab 15 ////////////////////////////
+/////////////////////////////////////////////////////////////
+
+
+// database connect 
+const pg = require("pg")
+const client = new pg.Client(process.env.DBURL)
+
+
+app.get('/getmovies' , getMovies )
+
+function getMovies(req ,res){
+    const sql = `select * from all_movies`;
+
+    client.query(sql).then(data =>{
+     res.json(data.rows)
+    }).catch(err =>{
+     errorHandler(err , req , res)
+    })
+}
+
+app.post('/addmovies' , addMOvies )
+
+function addMOvies(req ,res){
+     const userInput = req.body
+     sql = `insert into all_movies (title , overview , poster_path , release_date) values ( $1 ,$2 , $3, $4) returning *`
+     let values = [ userInput.title ,userInput.overview ,userInput.poster_path ,userInput.release_date ]
+     
+    // '${userInput.title}','${userInput.overview}' , '${userInput.poster_path}','${userInput.release_date}'
+
+     client.query(sql , values).then(data =>{
+          res.status(201).json(data.rows)
+     }).catch(err =>{
+          errorHandler(err, req ,res,)
+     })
+
+}
+
+
 // Error handler
-app.use(function (err, req, res, next) {
+app.use(errorHandler)
+
+function errorHandler (err, req, res,next) {
      res.status(500).json({
           "status": 500,
-          "responseText": "Something broke!"
+          "responseText": err.message ||"Something broke!"
           })
-   })
+   }
 
 app.use('*',(req,res) =>{
      res.status(404).json({
@@ -134,4 +179,9 @@ app.use('*',(req,res) =>{
 
 
 
-app.listen(8080, () => console.log("lab 13"))
+
+
+client.connect().then((con) =>{
+     console.log(con);
+     app.listen(3000, () => console.log("lab 13"))
+})
