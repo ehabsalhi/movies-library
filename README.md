@@ -4,6 +4,7 @@
 >![web request response cycle](./img/Mind%20Map.jpg)
 >![web request response cycle](./img/Mind%20Map%20(1).jpg)
 >![web request response cycle](./img/Mind%20Map%20(2).jpg)
+>![web request response cycle](./img/Mind%20Map%20(3).jpg)
 
 ## Overview
 
@@ -19,9 +20,12 @@
 >* http://localhost:3000/toprated to go to Top rated page
 >* http://localhost:3000/addmovies to add your movies
 >* http://localhost:3000/getmovies to get your movies that been added from you
+>* http://localhost:3000/getmovies/:id to get your movie by ID
+>* http://localhost:3000/updatemovie/:id to update your movie by ID
+>* http://localhost:3000/deletemovie/:id to delete any movie by ID
 
 
 ## Project Features
 <!-- What are the features included in you app -->
-> It make you able to access to the link of poster of your favorite movies and show to the user the title and description about the movie that wanted and and make him able to see trending and now playin and top rated movies and give him the ability to search about his movie by its title name and give the ability to add any movies you want and view what you added
+> It make you able to access to the link of poster of your favorite movies and show to the user the title and description about the movie that wanted and and make him able to see trending and now playin and top rated movies and give him the ability to search about his movie by its title name and give the ability to add any movies you want and view what you added , and make able to get a specific movie or update or delete it by its ID
 
