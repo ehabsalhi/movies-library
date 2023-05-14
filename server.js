@@ -11,7 +11,7 @@ app.use(express.json())
 app.use(cors())
 
 ///////////////////////// lab 13 ////////////////////////////
-/////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 
 function Movies(title , posterpath , overview){
      this.title = title;
@@ -160,7 +160,49 @@ function addMOvies(req ,res){
 }
 
 
-// Error handler
+////////////////////////// lab 16 ////////////////////////////
+/////////////////////////////////////////////////////////////
+
+
+app.get('/getmovies/:id',getSpecificMov)
+function getSpecificMov ( req , res){
+     const id = req.params.id
+     const sql = `select * from all_movies where id = ${id} `
+     client.query(sql).then(data =>
+      res.status(200).json(data.rows)
+      )
+}
+
+
+app.put('/updatemovie/:id', updateMov)
+function updateMov ( req , res){
+     const id = req.params.id
+     const newData = req.body
+     sql = `update all_movies set title = $1, overview = $2, poster_path = $3 , release_date = $4 where id = $5 returning * `
+     const updatedValue = [ newData.title ,newData.overview ,newData.poster_path ,newData.release_date , id] 
+
+     client.query(sql , updatedValue ).then(data =>
+          res.status(202).json(data.rows)
+     )
+}
+
+
+app.delete('/deletemovie/:id',deleteMov)
+
+function deleteMov(req , res ){
+     const id = req.params.id
+     const sql = `delete from all_movies where id = ${id} `
+
+     client.query (sql).then(() => {
+         return res.status(204).json({
+          message : `The movie has been Deleted`
+         })
+     })
+}
+
+
+/////////////////////// Error handler ////////////////////////////
+
 app.use(errorHandler)
 
 function errorHandler (err, req, res,next) {
