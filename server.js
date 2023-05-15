@@ -170,7 +170,9 @@ function getSpecificMov ( req , res){
      const sql = `select * from all_movies where id = ${id} `
      client.query(sql).then(data =>
       res.status(200).json(data.rows)
-      )
+      ).catch(err =>{
+          errorHandler(err, req ,res,)
+     })
 }
 
 
@@ -183,7 +185,9 @@ function updateMov ( req , res){
 
      client.query(sql , updatedValue ).then(data =>
           res.status(202).json(data.rows)
-     )
+     ).catch(err =>{
+          errorHandler(err, req ,res,)
+     })
 }
 
 
@@ -197,6 +201,8 @@ function deleteMov(req , res ){
          return res.status(204).json({
           message : `The movie has been Deleted`
          })
+     }).catch(err =>{
+          errorHandler(err, req ,res,)
      })
 }
 
