@@ -51,17 +51,25 @@ Movies2.allMovies = []
 // Trending page
 let trendinglink = process.env.trenUrl
 app.get('/trending',handelerMove)  
+
 async function handelerMove (req , res){
-     const axiosData = await axios.get(trendinglink)
-     
-     axiosData.data.results.map(ele => {
-          new Movies2 (ele.title , ele.poster_path , ele.overview , ele.id , ele.release_date)
-     })
-     
-     res.status(200).json({
-          status : axiosData.status,
-          trending : Movies2.allMovies
-     })
+     try {
+
+          const axiosData = await axios.get(trendinglink)
+          
+          axiosData.data.results.map(ele => {
+               new Movies2 (ele.title , ele.poster_path , ele.overview , ele.id , ele.release_date)
+          })
+          
+          res.status(200).json({
+               status : axiosData.status,
+               trending : Movies2.allMovies
+          })
+     }
+     catch{
+          errorHandler(err, req ,res,next)
+     }
+
 }
 
 // Search page
@@ -84,6 +92,8 @@ function handelSearch (req ,res){
                status : result.status,
                trending :searchItem,
              })
+     }).catch(err =>{
+          errorHandler(err, req ,res,next)
      })
 }
 
@@ -100,7 +110,9 @@ function handelVideo(req , res ){
                     now_playing : result.data.results,
                   })
           }
-     )
+     ).catch(err =>{
+          errorHandler(err, req ,res,next)
+     })
 
 }
 
@@ -116,7 +128,9 @@ function handelTop (req , res){
                     topRated : result.data.results,
                   })
           }
-     )
+     ).catch(err =>{
+          errorHandler(err, req ,res,next)
+     })
 }
 
 
@@ -138,7 +152,7 @@ function getMovies(req ,res){
     client.query(sql).then(data =>{
      res.json(data.rows)
     }).catch(err =>{
-     errorHandler(err , req , res)
+     errorHandler(err , req , res,next)
     })
 }
 
@@ -154,7 +168,7 @@ function addMOvies(req ,res){
      client.query(sql , values).then(data =>{
           res.status(201).json(data.rows)
      }).catch(err =>{
-          errorHandler(err, req ,res,)
+          errorHandler(err, req ,res,next)
      })
 
 }
@@ -171,7 +185,7 @@ function getSpecificMov ( req , res){
      client.query(sql).then(data =>
       res.status(200).json(data.rows)
       ).catch(err =>{
-          errorHandler(err, req ,res,)
+          errorHandler(err, req ,res,next)
      })
 }
 
@@ -186,7 +200,7 @@ function updateMov ( req , res){
      client.query(sql , updatedValue ).then(data =>
           res.status(202).json(data.rows)
      ).catch(err =>{
-          errorHandler(err, req ,res,)
+          errorHandler(err, req ,res,next)
      })
 }
 
@@ -202,7 +216,7 @@ function deleteMov(req , res ){
           message : `The movie has been Deleted`
          })
      }).catch(err =>{
-          errorHandler(err, req ,res,)
+          errorHandler(err, req ,res,next)
      })
 }
 
@@ -231,5 +245,5 @@ app.use('*',(req,res) =>{
 
 client.connect().then((con) =>{
      console.log(con);
-     app.listen(3000, () => console.log("lab 13"))
+     app.listen(process.env.PORT || 5000, () => console.log("lab 13"))
 })
