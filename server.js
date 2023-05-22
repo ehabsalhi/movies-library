@@ -28,7 +28,7 @@ app.get("/",(req , res) => {
 } )
 
 // Favorite page
-app.get("/favorite", (req,res) =>{
+app.get("/favorite1", (req,res) =>{
      res.send("Welcome to Favorite Page")
 })
 
@@ -54,7 +54,7 @@ app.get('/trending',handelerMove)
 
 async function handelerMove (req , res){
      try {
-
+          Movies2.allMovies = []
           const axiosData = await axios.get(trendinglink)
           
           axiosData.data.results.map(ele => {
@@ -174,8 +174,95 @@ function addMOvies(req ,res){
 }
 
 
-////////////////////////// lab 16 ////////////////////////////
 /////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+
+app.post('/favorite' , addFavMOvies )
+function addFavMOvies(req ,res){
+     const userInput = req.body
+     console.log(userInput);
+     sql = `insert into favorite (title , overview , poster_path , release_date , movie_id , comment) values ( $1 ,$2 , $3, $4 , $5 , $6) returning *`
+     let values = [ userInput.title ,userInput.overview ,userInput.poster_path ,userInput.release_date  ,userInput.id , userInput.comment ]
+     
+
+     client.query(sql , values).then(data =>{
+          res.status(201).json(data.rows)
+     }).catch(err =>{
+          console.log(err);
+          // errorHandler(err, req ,res)   
+     })
+}
+
+
+
+function Favorite(id ,title , overview,poster_path, release_date,comment ){
+     this.id = id ,
+     this.title = title ,
+     this.overview = overview ,
+     this.poster_path = poster_path ,
+     this.release_date = release_date ,
+     this.comment = comment ,
+     Favorite.all.push(this)
+}
+Favorite.all = []
+
+
+
+app.get("/favorite", getfavorite)
+function getfavorite (req ,res ) {
+     sql = `select * from favorite`;
+     Favorite.all = []
+     client.query(sql).then(data => {
+          data.rows.map(item => new Favorite(item.movie_id ,item.title ,item.overview ,item.poster_path ,item.release_date ,item.comment ))
+          res.json({
+               status : 200,
+               result : Favorite.all
+          })
+     }).catch(err =>{
+          errorHandler(err, req ,res)
+     })
+}
+
+
+app.put('/favorite/:id', updateFav)
+
+function updateFav(req , res){
+     const id = req.params.id
+     const userInput = req.body
+
+     const sql = `update favorite set comment = $1 where movie_id = $2 returning *`
+     const values = [userInput.comment , id]
+
+     client.query(sql , values).then(result =>{
+          res.status(201).json({
+               code : 201,
+               movie: result.rows
+          })
+     })
+     .catch(err => errorHandler(err,req ,res))
+}
+
+
+
+app.delete('/favorite/:id',deleteFav)
+
+
+function deleteFav(req ,res){
+     const id = req.params.id
+     const sql = `delete from favorite where movie_id = ${id} `
+
+     client.query(sql).then(result => {
+          res.status(204).json(result)
+     })
+     .catch(err => errorHandler(err,req , res))
+}
+
+
+
+
+/////////////////////////////////////////////////////////////
+////////////////////////// lab 16 ////////////////////////////
+
 
 
 app.get('/getmovies/:id',getSpecificMov)
@@ -224,7 +311,6 @@ function deleteMov(req , res ){
 /////////////////////// Error handler ////////////////////////////
 
 app.use(errorHandler)
-
 function errorHandler (err, req, res,next) {
      res.status(500).json({
           "status": 500,
